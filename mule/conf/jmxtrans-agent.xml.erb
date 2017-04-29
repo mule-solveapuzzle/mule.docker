@@ -1,0 +1,23 @@
+<jmxtrans-agent>
+    <queries>
+        <!-- OS -->
+        <query objectName="java.lang:type=OperatingSystem" attribute="SystemLoadAverage" resultAlias="os.systemLoadAverage"/>
+
+        <!-- JVM -->
+        <query objectName="java.lang:type=Memory" attribute="HeapMemoryUsage" key="used"
+               resultAlias="jvm.heapMemoryUsage.used" type="gauge"/>
+        <query objectName="java.lang:type=Memory" attribute="HeapMemoryUsage" key="committed"
+               resultAlias="jvm.heapMemoryUsage.committed" type="gauge"/>
+        <query objectName="java.lang:type=Memory" attribute="NonHeapMemoryUsage" key="used"
+               resultAlias="jvm.nonHeapMemoryUsage.used" type="gauge"/>
+        <query objectName="java.lang:type=Memory" attribute="NonHeapMemoryUsage" key="committed"
+               resultAlias="jvm.nonHeapMemoryUsage.committed" type="gauge"/>
+        <query objectName="java.lang:type=ClassLoading" attribute="LoadedClassCount" resultAlias="jvm.loadedClasses" type="gauge"/>
+    </queries>
+    <outputWriter class="org.jmxtrans.agent.StatsDOutputWriter">
+        <host><%=ENV['MULE_MANAGEMENT_JMXTRANS_STATSD_HOST']%></host>
+        <port><%=ENV['MULE_MANAGEMENT_JMXTRANS_STATSD_PORT']%></port>
+    </outputWriter>
+    <outputWriter class="org.jmxtrans.agent.ConsoleOutputWriter"/>
+    <collectIntervalInSeconds>20</collectIntervalInSeconds>
+</jmxtrans-agent>
