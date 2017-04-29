@@ -37,10 +37,9 @@ RUN yum update && \
 
 ENV JAVA_HOME /usr/lib/jvm/jre-${JAVA_VERSION}-openjdk/
 
-COPY mule-ee-distribution-standalone-${MULE_EE_VERSION}.tar.gz .
+#COPY mule-ee-distribution-standalone-${MULE_EE_VERSION}.tar.gz .
 # download, extract symlink, trim down mule EE distribution and then remove the downloaded archive
-#RUN curl -l -O http://s3.amazonaws.com/new-mule-artifacts/mule-ee-distribution-standalone-${MULE_EE_VERSION}.tar.gz && \
-RUN tar -zxvf mule-ee-distribution-standalone-${MULE_EE_VERSION}.tar.gz && \
+RUN curl -l -O http://s3.amazonaws.com/new-mule-artifacts/mule-ee-distribution-standalone-${MULE_EE_VERSION}.tar.gz && tar -zxvf mule-ee-distribution-standalone-${MULE_EE_VERSION}.tar.gz && \
     mv mule-enterprise-standalone-${MULE_EE_VERSION} /opt/mule-enterprise-standalone-${MULE_EE_VERSION} && \
     ln -s /opt/mule-enterprise-standalone-${MULE_EE_VERSION} ${MULE_HOME} && \
     rm mule-ee-distribution-standalone-${MULE_EE_VERSION}.tar.gz && \
