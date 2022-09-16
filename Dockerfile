@@ -60,9 +60,9 @@ ENV PATH $PATH:${MULE_HOME}/bin
 # VOLUME ${MULE_HOME}/logs
 
 # $MULE_HOME/.mule volume (ORDER IS IMPORTANT)
-RUN useradd 1001 && usermod -a -G root 1001
+RUN useradd a1001 && usermod -a -G root a1001
 RUN mkdir -m 0775 $MULE_HOME/.mule && \
-	chown 1001:root $MULE_HOME/.mule && \
+	chown a1001:root $MULE_HOME/.mule && \
 	chgrp -R -H 0 $MULE_HOME/.mule
 VOLUME ${MULE_HOME}/.mule
 
@@ -86,12 +86,12 @@ RUN chmod -R ug+rwx $MULE_HOME && \
 	chmod -R ug+rwx /tmp && \
 	chmod -R ug+rwx /mnt/mule
 RUN find $MULE_HOME -type d -exec chmod -R g+x {} +
-RUN chown -R 1001:0 $MULE_HOME && \
-	chown -R 1001:0 $MULE_HOME/bin && \
-	chown -R 1001:0 $MULE_HOME/logs && \
-	chown -R 1001:0 $MULE_HOME/conf && \
-	chown -R 1001:0 /tmp && \
-	chown -R 1001:0 /mnt/mule
+RUN chown -R a1001:0 $MULE_HOME && \
+	chown -R a1001:0 $MULE_HOME/bin && \
+	chown -R a1001:0 $MULE_HOME/logs && \
+	chown -R a1001:0 $MULE_HOME/conf && \
+	chown -R a1001:0 /tmp && \
+	chown -R a1001:0 /mnt/mule
 
 ADD start.sh /
 RUN chmod +x /start.sh
@@ -99,7 +99,7 @@ RUN chmod +x /start.sh
 VOLUME /mnt/mule/conf
 
 #Switch to non-root user
-USER 1001
+USER a1001
 
 LABEL git_commit ${GIT_COMMIT:-unknown}
 
