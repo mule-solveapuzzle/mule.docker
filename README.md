@@ -4,13 +4,13 @@ Image to create a mule runtime container for docker
 
 Docker/Microservice Mule application images can extend this image
 
-This image has the jolokia jvm agent enabled by default and jmx metrics are available at 0.0.0.0:8778/jolokia/read
+This image has the jolokia jvm agent enabled by default and jmx metrics are available at `0.0.0.0:8778/jolokia/read`
 
 Alternatively, a [jmxtrans-agent](https://github.com/jmxtrans/jmxtrans-agent) can be enabled by passing the below env vars. The agent will query for JMX metrics as specified in `mule/conf/jmxtrans-agent.xml.erb` and export them to a statsd server (with the below host/port). Furthermore, the `jmx-trans-agent.xml.erb` can also be mounted as a volume to override the image default configuration.
 
-* MULE_MANAGEMENT_ENABLE_JMXTRANS_AGENT=true
-* MULE_MANAGEMENT_JMXTRANS_STATSD_HOST=<STATSD HOST>
-* MULE_MANAGEMENT_JMXTRANS_STATSD_PORT=<STATSD PORT>
+* `MULE_MANAGEMENT_ENABLE_JMXTRANS_AGENT=true`
+* `MULE_MANAGEMENT_JMXTRANS_STATSD_HOST=<STATSD HOST>`
+* `MULE_MANAGEMENT_JMXTRANS_STATSD_PORT=<STATSD PORT>`
 
 ## Deployment Diagram
 
