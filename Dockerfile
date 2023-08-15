@@ -1,13 +1,15 @@
-FROM centos:7 
+#FROM centos:7 
+FROM adoptopenjdk/openjdk8:x86_64-centos-jdk8u292-b10
 
-MAINTAINER Neil Piper <neil.piper@gmail.com>
+LABEL Description="Mule EE" Vendor="MuleSoft" Version="3.9.1"
+LABEL maintainer="Neil Piper <solveapuzzledev@gmail.com>"
 
-ENV MULE_EE_VERSION 3.8.4
+ENV MULE_EE_VERSION 3.9.1
 ENV MULE_HOME /opt/mule
 
 ARG GIT_COMMIT
 
-ENV LOCAL_TIMEZONE=Australia/Melbourne
+ENV LOCAL_TIMEZONE=Europe/London
 
 # install basic tools and set AE(D)ST timezone
 RUN yum -y update && \
@@ -19,23 +21,28 @@ RUN yum -y update && \
         wget \
         bind-utils \
         telnet \
-        unzip && \
+        unzip \
+        netstat-nat \
+        net-tools \
+        vim \
+        less \
+        iputils-ping &&\
     yum clean all && \
     rm /etc/localtime && \
     ln -s /usr/share/zoneinfo/${LOCAL_TIMEZONE} /etc/localtime
 
 # add the dumb-init binary
-ENV DUMB_INIT_VERSION 1.2.0
-RUN wget -O /usr/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v${DUMB_INIT_VERSION}/dumb-init_${DUMB_INIT_VERSION}_amd64 && \
+ENV DUMB_INIT_VERSION 1.2.5
+RUN wget -O /usr/bin/dumb-init  https://github.com/Yelp/dumb-init/releases/download/v${DUMB_INIT_VERSION}/dumb-init_${DUMB_INIT_VERSION}_x86_64 && \
     chmod +x /usr/bin/dumb-init
 
-ENV JAVA_VERSION 1.8.0
+#ENV JAVA_VERSION 1.8.0
 
-RUN yum update && \
-    yum install -y java-"${JAVA_VERSION}"-openjdk-headless && \
-    yum clean all
+#RUN yum update && \
+#    yum install -y java-"${JAVA_VERSION}"-openjdk-headless && \
+#    yum clean all
 
-ENV JAVA_HOME /usr/lib/jvm/jre-${JAVA_VERSION}-openjdk/
+#ENV JAVA_HOME /usr/lib/jvm/jre-${JAVA_VERSION}-openjdk/
 
 #COPY mule-ee-distribution-standalone-${MULE_EE_VERSION}.tar.gz .
 # download, extract symlink, trim down mule EE distribution and then remove the downloaded archive
@@ -60,9 +67,10 @@ ENV PATH $PATH:${MULE_HOME}/bin
 # VOLUME ${MULE_HOME}/logs
 
 # $MULE_HOME/.mule volume (ORDER IS IMPORTANT)
-RUN useradd a1001 && usermod -a -G root a1001
+RUN useradd -u 1001 muleuser && usermod -a -G root muleuser
+
 RUN mkdir -m 0775 $MULE_HOME/.mule && \
-	chown a1001:root $MULE_HOME/.mule && \
+	chown muleuser:root $MULE_HOME/.mule && \
 	chgrp -R -H 0 $MULE_HOME/.mule
 VOLUME ${MULE_HOME}/.mule
 
@@ -86,12 +94,12 @@ RUN chmod -R ug+rwx $MULE_HOME && \
 	chmod -R ug+rwx /tmp && \
 	chmod -R ug+rwx /mnt/mule
 RUN find $MULE_HOME -type d -exec chmod -R g+x {} +
-RUN chown -R a1001:0 $MULE_HOME && \
-	chown -R a1001:0 $MULE_HOME/bin && \
-	chown -R a1001:0 $MULE_HOME/logs && \
-	chown -R a1001:0 $MULE_HOME/conf && \
-	chown -R a1001:0 /tmp && \
-	chown -R a1001:0 /mnt/mule
+RUN chown -R 1001:0 $MULE_HOME && \
+	chown -R 1001:0 $MULE_HOME/bin && \
+	chown -R 1001:0 $MULE_HOME/logs && \
+	chown -R 1001:0 $MULE_HOME/conf && \
+	chown -R 1001:0 /tmp && \
+	chown -R 1001:0 /mnt/mule
 
 ADD start.sh /
 RUN chmod +x /start.sh
@@ -99,7 +107,7 @@ RUN chmod +x /start.sh
 VOLUME /mnt/mule/conf
 
 #Switch to non-root user
-USER a1001
+USER muleuser
 
 LABEL git_commit ${GIT_COMMIT:-unknown}
 
