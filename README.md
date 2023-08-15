@@ -12,6 +12,12 @@ Alternatively, a [jmxtrans-agent](https://github.com/jmxtrans/jmxtrans-agent) ca
 * MULE_MANAGEMENT_JMXTRANS_STATSD_HOST=<STATSD HOST>
 * MULE_MANAGEMENT_JMXTRANS_STATSD_PORT=<STATSD PORT>
 
+## Deployment Diagram
+
+
+![deploy Diagram](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/mule-solveapuzzle/mule.docker/master/docs/deploy.puml)
+
+
 ## build
 ```
 docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --tag npiper/mule39-ee-base .
