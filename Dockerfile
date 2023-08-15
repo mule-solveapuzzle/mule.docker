@@ -4,7 +4,7 @@ FROM adoptopenjdk/openjdk8:x86_64-centos-jdk8u292-b10
 LABEL Description="Mule EE" Vendor="MuleSoft" Version="3.9.1"
 LABEL maintainer="Neil Piper <solveapuzzledev@gmail.com>"
 
-ENV MULE_EE_VERSION 3.9.1
+ENV MULE_EE_VERSION 4.4.0 
 ENV MULE_HOME /opt/mule
 
 ARG GIT_COMMIT

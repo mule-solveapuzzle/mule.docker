@@ -3,12 +3,16 @@
     <Appenders>
     <Console name="Console" target="SYSTEM_OUT">
       <PatternLayout>
-        <pattern>%-5p %d [%t] %c: %m%n</pattern>
+        <pattern>%-5p %d [%t] [processor: %X{processorPath}; event: %X{correlationId}] %c: %m%n</pattern>
         <replace regex="\r?\n(?!$)" replacement="\\n"/>
       </PatternLayout>
         </Console>
     </Appenders>
+
     <Loggers>
+
+
+
         <!-- CXF is used heavily by Mule for web services -->
         <AsyncLogger name="org.apache.cxf" level="WARN"/>
 
@@ -19,15 +23,28 @@
         <AsyncLogger name="org.springframework.beans.factory" level="WARN"/>
 
         <!-- Mule classes -->
-        <AsyncLogger name="org.mule" level="INFO"/>
-        <AsyncLogger name="com.mulesoft" level="INFO"/>
+        <AsyncLogger name="org.mule.runtime.core.internal.processor.LoggerMessageProcessor" level="INFO"/>
+        <AsyncLogger name="com.mulesoft.agent" level="INFO"/>
+
+        <AsyncLogger name="org.mule" level="WARN"/>
+        <AsyncLogger name="com.mulesoft" level="WARN"/>
+  
+        <AsyncLogger name="org.mule.runtime.core.internal.logging" additivity="false" level="INFO">
+            <AppenderRef ref="ConsoleLogUtil"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="com.mulesoft.mule.runtime.gw" level="INFO"/>
+        <AsyncLogger name="com.mulesoft.extension.policies" level="INFO"/>
+        <AsyncLogger name="com.mulesoft.extension.gateway" level="INFO"/>
+        <AsyncLogger name="com.mulesoft.analytics" level="INFO"/>
+  
+        <AsyncRoot level="WARN">
+            <AppenderRef ref="Console"/>
+        </AsyncRoot>
 
         <!-- Reduce DM verbosity -->
         <AsyncLogger name="org.jetel" level="WARN"/>
         <AsyncLogger name="Tracking" level="WARN"/>
 
-        <AsyncRoot level="INFO">
-            <AppenderRef ref="Console" />
-        </AsyncRoot>
     </Loggers>
 </Configuration>

@@ -126,6 +126,8 @@ Add a DockerCompose with services like JMX Clients, [StatsD Collator](https://hu
 
 Add [Prometheus performance monitoring](https://prometheus.io/docs/prometheus/latest/installation/)
 
+Add [OpenTelemetry](https://github.com/avioconsulting/mule-opentelemetry-module)
+
 
 ```
  <dependency>
