@@ -5,7 +5,7 @@
 # Location of your Mule installation.
 wrapper.java.additional.1=-Dmule.home="%MULE_HOME%"
 wrapper.java.additional.1.stripquotes=TRUE
-wrapper.java.additional.2=-Dmule.base="%MULE_HOME%"
+wrapper.java.additional.2=-Dmule.base="%MULE_BASE%"
 wrapper.java.additional.2.stripquotes=TRUE
 
 # Sets IPv4 addresses in order to avoid multicasting issues
@@ -13,6 +13,17 @@ wrapper.java.additional.3=-Djava.net.preferIPv4Stack=TRUE
 
 # Needed to avoid a memory leak on mvel (see MULE-7650)
 wrapper.java.additional.4=-Dmvel2.disable.jit=TRUE
+
+# Limit HTTP module send and receive buffers size to 1MB by default to avoid running out of Direct Memory.  To optimize for
+# performance this system property should be removed and direct memory increased as required.
+wrapper.java.additional.5=-Dorg.glassfish.grizzly.nio.transport.TCPNIOTransport.max-receive-buffer-size=1048576
+wrapper.java.additional.6=-Dorg.glassfish.grizzly.nio.transport.TCPNIOTransport.max-send-buffer-size=1048576
+
+# Limit the Metaspace Size to protect system memory from unwanted usage
+# Increase this value if you get "Java.lang.OutOfMemoryError: Metaspace" error
+wrapper.java.additional.7=-XX:MaxMetaspaceSize=256m
+wrapper.java.additional.8=-XX:MetaspaceSize=128m
+
 
 # *** IMPORTANT ***
 # If you enable any of the options below, you _must_ change the <n> to be a
@@ -29,7 +40,8 @@ wrapper.java.additional.4=-Dmvel2.disable.jit=TRUE
 #wrapper.java.additional.<n>=-Dmule.clusterSize=2
 #############################
 
-<% idx = 4 %>
+
+<% idx = 9 %>
 <% if ENV['MULE_LOGGING_VERBOSE_GB'] == "true" %>
 # Garbage Collection
 wrapper.java.additional.<%= idx += 1; idx %>=-verbose:gc
@@ -41,6 +53,8 @@ wrapper.java.additional.<%= idx += 1; idx %>=-XX:+HeapDumpOnOutOfMemoryError
 wrapper.java.additional.<%= idx += 1; idx %>=-Xloggc:%MULE_HOME%/logs/%MULE_APP%-gc.log
 #this is not the right place for this
 wrapper.java.additional.<%= idx += 1; idx %>=-XX:+AlwaysPreTouch
+wrapper.java.additional.<%= idx += 1; idx %>=-XX:NewRatio=1
+wrapper.java.additional.<%= idx += 1; idx %>=-XX:MaxTenuringThreshold=8
 <% end %>
 
 #If you need to do combinations of specific settings for memory and GC see the MULE_WRAPPER_CUSTOM_ARG_ options further down
@@ -53,6 +67,21 @@ wrapper.java.additional.<%= idx += 1; idx %>=-XX:SurvivorRatio=16
 wrapper.java.additional.<%= idx += 1; idx %>=-XX:CMSInitiatingOccupancyFraction=65
 wrapper.java.additional.<%= idx += 1; idx %>=-XX:UseCMSInitiatingOccupancyOnly
 <% end %>
+
+# Avoid Quartz update check. See https://jira.terracotta.org/jira/browse/QTZ-29
+wrapper.java.additional.<%= idx += 1; idx %>=-Dorg.quartz.scheduler.skipUpdateCheck=true
+
+# Metadata Cache
+wrapper.java.additional.<%= idx += 1; idx %>=-Dmule.metadata.cache.entryTtl.minutes=10
+wrapper.java.additional.<%= idx += 1; idx %>=-Dmule.metadata.cache.expirationInterval.millis=5000
+
+# Locale Compatibility Mode
+wrapper.java.additional.<%= idx += 1; idx %>=-Djava.locale.providers=COMPAT,CLDR,SPI
+
+# Disable JMX for log4j
+wrapper.java.additional.<%= idx += 1; idx %>=-Dlog4j2.disable.jmx=true
+
+
 
 <% # Enable API PLatform integration if configured
 if File.exist?("#{ENV['MULE_HOME']}/conf/apigw/api-gateway.properties")
@@ -183,8 +212,12 @@ wrapper.java.additional.<%= idx += 1; idx %>=-Dmule.agent.enabled=false
 # Java Application
 wrapper.java.command=java
 
+# Java Main class - 3.X
+#wrapper.java.mainclass=org.mule.module.reboot.MuleContainerBootstrap
+
 # Java Main class
-wrapper.java.mainclass=org.mule.module.reboot.MuleContainerBootstrap
+wrapper.java.mainclass=org.mule.runtime.module.reboot.MuleContainerBootstrap
+
 
 # Main class for legacy mode.  Comment about the mainclass property above
 # and uncomment the one below.  You will also need to switch out the wrapper
@@ -196,18 +229,24 @@ wrapper.java.mainclass=org.mule.module.reboot.MuleContainerBootstrap
 wrapper.java.classpath.1=%MULE_LIB%
 wrapper.java.classpath.2=%MULE_BASE%/conf
 wrapper.java.classpath.3=%MULE_HOME%/lib/boot/*.jar
-wrapper.java.classpath.4=%MULE_BASE%/data-mapper
+#wrapper.java.classpath.4=%MULE_BASE%/data-mapper  #mule3.9
 
 # Java Native Library Path (location of .DLL or .so files)
-wrapper.java.library.path.1=%LD_LIBRARY_PATH%
-wrapper.java.library.path.2=%MULE_HOME%/lib/boot
+wrapper.java.library.path.1=%MULE_HOME%/lib/boot
 
 # Increase the default startup timeout so that the JVM has enough
 # time to download the required jars on a slow connection
 wrapper.startup.timeout=600
 
+
+# Communication backend type
+wrapper.backend.type=PIPE
+
 # Number of seconds to allow between the Wrapper pinging the JVM and the response from the JVM
 wrapper.ping.timeout=30
+
+# Action to be executed after a ping timeout.
+wrapper.ping.timeout.action=DUMP,RESTART
 
 # Initial Java Heap Size (in MB)
 wrapper.java.initmemory=<%= ENV['MULE_MEMORY_MIN_HEAP'] %>
@@ -282,10 +321,15 @@ wrapper.logfile.maxsize=10m
 
 # Maximum number of rolled log files which will be allowed before old
 #  files are deleted.  The default value of 0 implies no limit.
-wrapper.logfile.maxfiles=1
+wrapper.logfile.maxfiles=10
 
 # Log Level for sys/event log output.  (See docs for log levels)
 wrapper.syslog.loglevel=NONE
+
+# Avoid warnings on reflective access
+# TODO: investigate a general solution for classloading modular dependencies (MULE-18391)
+set.JDK_JAVA_OPTIONS=--add-opens java.base/sun.net.www.protocol.file=ALL-UNNAMED --add-opens java.base/java.lang.reflect=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED  --add-opens java.desktop/java.beans=ALL-UNNAMED 
+
 
 #********************************************************************
 # Wrapper Windows Properties

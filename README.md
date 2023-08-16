@@ -17,10 +17,17 @@ Alternatively, a [jmxtrans-agent](https://github.com/jmxtrans/jmxtrans-agent) ca
 
 ![deploy Diagram](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/mule-solveapuzzle/mule.docker/master/docs/deploy.puml)
 
+## Mule Version 4.1.1
+
+Max is `4.1.1` to work in this configuration without supplying and mounting your own license file - in release 4.1.2 Mule started doing much stricter evaluation of licenses
+
+[Help: Mule 4.1.12 couldn't validate license key](https://help.mulesoft.com/s/article/Mule-4-1-2-Couldn-t-validate-license-key)
+
+Changing the version is possible by providing an environment variable or tweaking the docker file.
 
 ## build
 ```
-docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --tag npiper/mule39-ee-base .
+docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --tag npiper/mule41-ee-base .
 ```
 
 ## run as daemon
@@ -37,7 +44,7 @@ docker run -Pit \
     -e "MULE_LOGGING_ESB_JAVA_LEVEL='INFO'" \
     -e "MULE_LOGGING_XML_FILTERS='INFO'" \
     -e "MULE_LOGGING_ESB_UTILS='INFO'" \
-    npiper/mule39-ee-base:latest
+    npiper/mule41-ee-base:latest
 ```
 ## run with jmxtrans-agent enabled
 ```
@@ -64,12 +71,12 @@ In Openshift and Kubernetes the license can be stored as a `Secret` and mounted 
 ```
 docker run -Pit 
     -v /tmp/mule/conf:/mnt/mule/conf
-    npiper/mule39-ee-base:latest
+    npiper/mule41-ee-base:latest
 ```
 
 # push
 ```
-docker push npiper/mule39-ee-base:latest
+docker push npiper/mule41-ee-base:latest
 ```
 
 # Environment Variables
@@ -118,6 +125,7 @@ Network tools - curl, wget, unzip, netstat-nat net-tools iputils-ping telnet
 ## TO DO
 
 Add Maven support
+
 Download / Upgrade to Jolokia 1.7.2 - https://jolokia.org/download.html to `/lib/user`
 
 Download / Upgrade to JMX Trans 1.2.11 - https://github.com/jmxtrans/jmxtrans-agent to `/lib/user`

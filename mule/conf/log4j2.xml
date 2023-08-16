@@ -7,6 +7,9 @@
         <replace regex="\r?\n(?!$)" replacement="\\n"/>
       </PatternLayout>
         </Console>
+        <Console name="ConsoleLogUtil" target="SYSTEM_OUT">
+            <PatternLayout pattern="%m%n"/>
+        </Console>
     </Appenders>
 
     <Loggers>
